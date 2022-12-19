@@ -1,0 +1,81 @@
+main
+			cmp		r3, #1
+			addne	r0, r0, #100			;              <-------------------------------  user input / solution at the end
+			addne	r9, r9, r0
+			beq		managestack
+			cmp		r9, #0
+			movlt	r0, #-1
+			blt		negative
+			cmp		r9, #47
+			movge	r0, #-1
+			bge		negative
+			
+loop			mov		r4, r0		; move r0 into r4 to be put onto the stack
+			str		lr, [sp, #0]	; stores Lr to return
+			sub		sp, sp, #4	; subtracts the stack for storing r0 values
+			str		r4, [sp, #0] 	; stores r0 into the stack
+			sub		sp, sp, #4	; subtracts the stack pointer
+			str		r8, [sp, #0]	; stores the return value
+			sub		sp, sp, #4
+			cmp		r0, #0		; r0 is the value that is getting reduced
+			addeq	r3, r3, #1
+			bne		recursivecall 	; this for the flag for way at the beginning
+			beq		link
+			
+recursivecall
+			sub		r0, r0, #1	; subracts r0 by 1
+			bl		loop
+managestack
+			sub		sp, sp, #4	; access the last n value on stack
+			ldr		r1, [sp, #0]   ; load that return value in the register
+			cmp		r1, #0		; if r1 == 0
+			moveq	r10, #0		; put zero into r10
+			moveq	r4, r10
+			streq	r4, [sp, #-4]	; add zero into the return
+			;addeq	r3, r3, #1	; this for the flag for way at the beginning
+			cmp		r1, #1		; if n value is 1
+			moveq	r10, #1		; move 1 into r10
+			moveq	r4, r10
+			streq	r4, [sp, #-4]	; add zero into the return
+			cmp		r1, #1
+			ldrgt	r10, [sp, #-16]  ; gets the n - 1 value
+			ldrgt	r11, [sp, #-28]  ; gets the n - 2 value
+			addgt	r10, r11, r10	  ; add (n - 1) + (n - 2)
+			mov		r4, r10
+			strgt	r4, [sp, #-4]	  ; store that sum on to the stack
+			ldr		r0, [sp, #0]	  ; take out recent number on to a register
+			cmp		r0, r9		  ; compare if that recent number is the same as what the user put in.
+			beq		exit			  ; if numbers are the same then branch
+			add		sp, sp, #4	  ; add to the stack
+			b		link
+link
+			add		sp, sp, #12
+			ldr		lr, [sp, #0]
+			mov		pc, lr
+exit
+			mov		r0, r10
+negative
+			
+			
+			
+			
+			;		Fib(4)  stack
+			;		|      	lr      	|
+			;		|     	nth      	|	<---- 4	<--	access n - 1 by subtracting sp by 16
+			;		|    return(3)    	|4				n - 1 gets return(2)
+			;		|      	lr      	|8				access n - 2 by subtracting sp by 28
+			;		|     	nth      	|12	<---- 3		n - 2 gets return(1). return(2) + return(1) = return(3)
+			;		|    return(2)    	|16
+			;		|      	lr      	|20
+			;		|     	nth      	|24	<---- 2
+			;		|    return(1)    	|28
+			;		|      	lr      	|
+			;		|     	nth      	|	<---- 1
+			;		|    return(1)    	|
+			;		|      	lr      	|
+			;		|     	nth      	|	<---- 0
+			;		|    return(0)    	|
+			
+			
+			
+			

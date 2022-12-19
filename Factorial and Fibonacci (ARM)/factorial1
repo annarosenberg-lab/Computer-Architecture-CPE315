@@ -1,0 +1,38 @@
+			mov		r0, #7						; <------------- user input / solution
+			cmp		r0, #0
+			beq		finalEnd
+			blt		negative
+			bl		factorial
+			b		finalEnd
+			
+factorial		str		lr, [sp,#-4]!  ;/* Push lr onto the top of the stack */
+			str		r0, [sp,#-4]!  ;/* Push r0 onto the top of the stack */
+			;/*		Note that after that, sp is 8 byte aligned */
+			cmp		r0, #0         ;/* compare r0 and 0 */
+			bne		is_nonzero     ;/* if r0 != 0 then branch */
+			mov		r0, #1         ;/* r0 â†? 1. This is the return */
+			b		final
+is_nonzero	sub		r0, r0, #1     ;/* r0 â†? r0 - 1 */
+			bl		factorial
+			;/*		After the call r0 contains factorial(n-1) */
+			;/*		Load r0 (that we kept in th stack) into r1 */
+			ldr		r1, [sp]       ;/* r1 â†? *sp */
+			add		r2, r0, #0
+			cmp		r1, #1
+			ble		final
+			
+Multloop
+			add		r0, r2, r0
+			sub		r1, r1, #1
+			cmp		r1, #2
+			bge		Multloop
+			
+			
+final		add		sp, sp, #+4    ;/* Discard the r0 we kept in the stack */
+			ldr		lr, [sp], #+4  ;/* Pop the top of the stack and put it in lr */
+			mov		pc,lr              ;/* Leave factorial */
+negative
+			add		r0, r2, #-1
+			
+finalEnd
+			
